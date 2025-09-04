@@ -8,18 +8,19 @@ import { Sun, Moon } from "lucide-react";
 interface ButtonProps {
   children: React.ReactNode;
   onClick: () => void;
-  size?: 'icon'; // size is optional and can only be 'icon'
-  className?: string; // className is optional
-  [key: string]: any; // Allows any other props (like 'aria-label')
+  size?: 'icon' | 'default'; // Added 'default' as a valid option
+  className?: string;
+  [key: string]: any;
 }
 
-// 2. Use the defined type in the component function signature
-const Button = ({ children, onClick, size, className, ...props }: ButtonProps) => {
+// 2. Add a default value for 'size' in the function signature
+const Button = ({ children, onClick, size = 'default', className, ...props }: ButtonProps) => {
   const baseClasses = "flex items-center justify-center p-3 rounded-md transition-colors";
   const sizeClasses = {
+    default: "", // An empty string for the default case
     icon: "w-10 h-10 md:w-12 md:h-12",
   };
-  const finalClasses = `${baseClasses} ${sizeClasses[size] || ""} ${className || ""}`;
+  const finalClasses = `${baseClasses} ${sizeClasses[size]} ${className || ""}`;
   
   return (
     <button onClick={onClick} className={finalClasses} {...props}>
@@ -33,10 +34,8 @@ export default function Dashboard() {
   const [particles, setParticles] = useState([]);
 
   useEffect(() => {
-    // Definir título da página
     document.title = "Inventário";
     
-    // Criar favicon redondo usando SVG
     const imageUrl = 'https://abrale.org.br/wp-content/uploads/2024/10/hospital-mario-covas.jpg';
     const svgFavicon = `<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="favCircle"><circle cx="16" cy="16" r="16" /></clipPath></defs><image href="${imageUrl}" x="0" y="0" width="32" height="32" clip-path="url(#favCircle)" /></svg>`;
     const faviconUrl = `data:image/svg+xml,${encodeURIComponent(svgFavicon)}`;
@@ -49,7 +48,6 @@ export default function Dashboard() {
     }
     link.href = faviconUrl;
 
-    // Criar partículas/estrelas
     const particleCount = window.innerWidth < 768 ? 20 : 40;
     const newParticles = Array.from({ length: particleCount }, (_, i) => ({
       id: i,
@@ -73,7 +71,6 @@ export default function Dashboard() {
         ? 'bg-gradient-to-br from-sky-200 via-sky-100 to-blue-50' 
         : 'bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900'
     }`}>
-      {/* Header */}
       <header className="fixed top-0 left-0 z-50 p-4 md:p-6">
         <div className={`flex items-center gap-3 backdrop-blur-xl border rounded-2xl px-4 py-2 md:px-6 md:py-3 transition-all duration-500 ${
           isDayMode
@@ -95,7 +92,6 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* Day/Night Toggle */}
       <div className="fixed top-4 right-4 md:top-6 md:right-6 z-50">
         <Button
           onClick={toggleMode}
@@ -114,7 +110,6 @@ export default function Dashboard() {
         </Button>
       </div>
 
-      {/* Sun (Day Mode) */}
       {isDayMode && (
         <div className="absolute top-16 right-20 w-16 h-16 md:top-20 md:right-32 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-yellow-300 to-orange-400 shadow-2xl shadow-yellow-300/50 animate-pulse">
           <div className="absolute inset-1 md:inset-2 rounded-full bg-gradient-to-br from-yellow-200 to-yellow-300 opacity-80"></div>
@@ -122,7 +117,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Moon (Night Mode) */}
       {!isDayMode && (
         <div className="absolute top-16 right-20 w-16 h-16 md:top-20 md:right-32 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-gray-100 to-gray-300 shadow-2xl shadow-blue-300/30">
           <div className="absolute inset-1 md:inset-1 rounded-full bg-gradient-to-br from-gray-200 to-gray-100 opacity-90"></div>
@@ -132,7 +126,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Clouds (Day Mode) - Hidden on mobile */}
       {isDayMode && (
         <>
           <div className="absolute top-32 left-20 animate-float hidden md:block">
@@ -159,7 +152,6 @@ export default function Dashboard() {
         </>
       )}
 
-      {/* Particles/Stars */}
       <div className="fixed inset-0 pointer-events-none z-10">
         {particles.map(particle => (
           <div
@@ -182,7 +174,6 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Main Content */}
       <main className="flex items-center justify-center min-h-screen w-full px-4 md:px-8 pt-24 pb-20 relative z-20">
         <div className="w-full max-w-7xl h-full">
           <div className={`relative w-full h-[calc(100vh-180px)] min-h-[450px] md:min-h-[600px] rounded-2xl md:rounded-3xl overflow-hidden transition-all duration-700 hover:scale-[1.02] ${
@@ -191,14 +182,12 @@ export default function Dashboard() {
               : 'bg-white/5 border-white/10 shadow-2xl shadow-black/40'
           } backdrop-blur-xl border-2`}
           >
-            {/* Glow Effect */}
             <div className={`absolute -inset-0.5 rounded-3xl transition-all duration-1000 ${
               isDayMode
                 ? 'bg-gradient-to-r from-blue-300/20 via-sky-200/30 to-blue-300/20'
                 : 'bg-gradient-to-r from-blue-600/20 via-blue-400/30 to-blue-600/20'
             } blur-sm animate-pulse`}></div>
             
-            {/* Dashboard Iframe */}
             <iframe
               title="Inventário"
               src="https://app.powerbi.com/view?r=eyJrIjoiNjdhYzRkY2EtY2E3OS00YjNjLTljZGEtNDgwNjZmOWRkNDIyIiwidCI6IjgwYTM2ZDViLWI3YmItNDNkMS05ODgxLTI2YTcxMmE5MTU2ZCJ9"
@@ -210,7 +199,6 @@ export default function Dashboard() {
         </div>
       </main>
 
-      {/* Wave Animation (Night Mode) */}
       {!isDayMode && (
         <div className="fixed bottom-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
           <svg className="absolute bottom-0 left-0 w-[200%] h-32 md:h-48 animate-wave-slow" viewBox="0 0 1200 120" preserveAspectRatio="none">
@@ -238,7 +226,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Footer Profissional */}
       <footer className={`absolute bottom-0 w-full z-30 text-center py-3 backdrop-blur-xl border-t transition-all duration-500 ${
         isDayMode
           ? 'bg-white/20 border-white/30 text-gray-700'
