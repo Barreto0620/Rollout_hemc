@@ -4,7 +4,17 @@
 import React, { useState, useEffect } from "react";
 import { Sun, Moon } from "lucide-react";
 
-// 1. Definição do tipo para os 'props' do componente Button
+// 1. Definição do tipo para o objeto de partícula
+interface Particle {
+  id: number;
+  left: number;
+  top: number;
+  delay: number;
+  duration: number;
+  size: number;
+  opacity: number;
+}
+
 interface ButtonProps {
   children: React.ReactNode;
   onClick: () => void;
@@ -13,7 +23,6 @@ interface ButtonProps {
   [key: string]: any;
 }
 
-// 2. Componente Button com valor padrão para a propriedade 'size'
 const Button = ({ children, onClick, size = 'default', className, ...props }: ButtonProps) => {
   const baseClasses = "flex items-center justify-center p-3 rounded-md transition-colors";
   const sizeClasses = {
@@ -31,18 +40,16 @@ const Button = ({ children, onClick, size = 'default', className, ...props }: Bu
 
 export default function Dashboard() {
   const [isDayMode, setIsDayMode] = useState(false);
-  const [particles, setParticles] = useState([]);
+  // 2. CORREÇÃO: Explicitamente definir o tipo do estado como um array de 'Particle'
+  const [particles, setParticles] = useState<Particle[]>([]);
 
   useEffect(() => {
-    // Definir título da página
     document.title = "Inventário";
     
-    // Criar favicon redondo usando SVG
     const imageUrl = 'https://abrale.org.br/wp-content/uploads/2024/10/hospital-mario-covas.jpg';
     const svgFavicon = `<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="favCircle"><circle cx="16" cy="16" r="16" /></clipPath></defs><image href="${imageUrl}" x="0" y="0" width="32" height="32" clip-path="url(#favCircle)" /></svg>`;
     const faviconUrl = `data:image/svg+xml,${encodeURIComponent(svgFavicon)}`;
 
-    // 3. CORREÇÃO: Usar Type Casting para garantir que a variável 'link' seja um HTMLLinkElement
     let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
     if (!link) {
       link = document.createElement('link') as HTMLLinkElement;
@@ -51,9 +58,8 @@ export default function Dashboard() {
     }
     link.href = faviconUrl;
 
-    // Criar partículas/estrelas
     const particleCount = window.innerWidth < 768 ? 20 : 40;
-    const newParticles = Array.from({ length: particleCount }, (_, i) => ({
+    const newParticles: Particle[] = Array.from({ length: particleCount }, (_, i) => ({
       id: i,
       left: Math.random() * 100,
       top: Math.random() * 100,
