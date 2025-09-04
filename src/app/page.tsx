@@ -4,9 +4,17 @@
 import React, { useState, useEffect } from "react";
 import { Sun, Moon } from "lucide-react";
 
-// Implementação simples do componente Button para resolver o erro de "Module not found"
-// Você pode substituir isso pela sua própria implementação ou pela de uma biblioteca como o Shadcn UI
-const Button = ({ children, onClick, size, className, ...props }) => {
+// 1. Define the props type for the Button component
+interface ButtonProps {
+  children: React.ReactNode;
+  onClick: () => void;
+  size?: 'icon'; // size is optional and can only be 'icon'
+  className?: string; // className is optional
+  [key: string]: any; // Allows any other props (like 'aria-label')
+}
+
+// 2. Use the defined type in the component function signature
+const Button = ({ children, onClick, size, className, ...props }: ButtonProps) => {
   const baseClasses = "flex items-center justify-center p-3 rounded-md transition-colors";
   const sizeClasses = {
     icon: "w-10 h-10 md:w-12 md:h-12",
@@ -241,10 +249,6 @@ export default function Dashboard() {
         </p>
       </footer>
 
-      {/* A tag <style jsx> é específica para bibliotecas como o Styled-JSX ou Next.js (no modelo Pages Router). 
-          No App Router, o ideal é usar um arquivo de CSS global ou módulos CSS.
-          Para este caso, a solução mais simples e direta é mover os keyframes para um arquivo global. 
-          No entanto, para manter a consistência e o arquivo único, o styled-jsx foi mantido. */}
       <style jsx>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px) translateX(0px); }
