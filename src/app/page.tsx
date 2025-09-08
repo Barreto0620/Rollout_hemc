@@ -211,7 +211,7 @@ export default function Dashboard() {
       <main className="flex items-center justify-center min-h-screen w-full px-4 md:px-8 pt-24 pb-20 relative z-20">
         <div className="w-full max-w-7xl h-full">
           <div
-            className={`relative w-full h-[calc(100vh-180px)] min-h-[450px] md:min-h-[600px] rounded-2xl md:rounded-3xl overflow-hidden transition-all duration-700 hover:scale-[1.02] ${
+            className={`relative w-full h-[calc(100vh-180px)] min-h-[450px] md:min-h-[600px] rounded-2xl md:rounded-3xl overflow-hidden transition-all duration-700 ${
               isDayMode
                 ? "bg-white/30 border-white/40 shadow-2xl shadow-blue-200/30"
                 : "bg-white/5 border-white/10 shadow-2xl shadow-black/40"
