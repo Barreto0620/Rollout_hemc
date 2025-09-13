@@ -13,6 +13,7 @@ interface Particle {
   duration: number;
   size: number;
   opacity: number;
+  animationType: 'twinkle' | 'float' | 'drift';
 }
 
 interface ButtonProps {
@@ -47,7 +48,6 @@ const Button = ({
 
 export default function Dashboard() {
   const [isDayMode, setIsDayMode] = useState(false);
-  // 2. CORREÇÃO: Explicitamente definir o tipo do estado como um array de 'Particle'
   const [particles, setParticles] = useState<Particle[]>([]);
 
   useEffect(() => {
@@ -66,7 +66,9 @@ export default function Dashboard() {
     }
     link.href = faviconUrl;
 
-    const particleCount = window.innerWidth < 768 ? 20 : 40;
+    const particleCount = window.innerWidth < 768 ? 25 : 50;
+    const animationTypes: ('twinkle' | 'float' | 'drift')[] = ['twinkle', 'float', 'drift'];
+    
     const newParticles: Particle[] = Array.from(
       { length: particleCount },
       (_, i) => ({
@@ -74,9 +76,10 @@ export default function Dashboard() {
         left: Math.random() * 100,
         top: Math.random() * 100,
         delay: Math.random() * 6,
-        duration: Math.random() * 3 + 4,
-        size: Math.random() * 2 + 1.5,
-        opacity: Math.random() * 0.5 + 0.3,
+        duration: Math.random() * 4 + 3,
+        size: Math.random() * 3 + 1,
+        opacity: Math.random() * 0.6 + 0.4,
+        animationType: animationTypes[Math.floor(Math.random() * animationTypes.length)],
       })
     );
     setParticles(newParticles);
@@ -149,11 +152,36 @@ export default function Dashboard() {
 
       {/* Moon (Night Mode) */}
       {!isDayMode && (
-        <div className="absolute top-16 right-20 w-16 h-16 md:top-20 md:right-32 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-gray-100 to-gray-300 shadow-2xl shadow-blue-300/30">
+        <div className="absolute top-16 right-20 w-16 h-16 md:top-20 md:right-32 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-gray-100 to-gray-300 shadow-2xl shadow-blue-300/30 animate-moon-glow">
           <div className="absolute inset-1 md:inset-1 rounded-full bg-gradient-to-br from-gray-200 to-gray-100 opacity-90"></div>
           <div className="absolute top-4 right-6 w-1 h-1 md:w-2 md:h-2 rounded-full bg-gray-400/60"></div>
           <div className="absolute bottom-6 left-4 w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-gray-400/40"></div>
           <div className="absolute top-8 left-6 w-0.5 h-0.5 md:w-1 md:h-1 rounded-full bg-gray-400/50"></div>
+          {/* Aura da lua */}
+          <div className="absolute -inset-4 md:-inset-6 rounded-full bg-blue-200/10 animate-pulse"></div>
+        </div>
+      )}
+
+      {/* Constellation Lines (Night Mode) */}
+      {!isDayMode && (
+        <div className="fixed inset-0 pointer-events-none z-5 opacity-30">
+          <svg className="w-full h-full" viewBox="0 0 1200 800">
+            <line x1="10%" y1="20%" x2="25%" y2="30%" stroke="rgb(147, 197, 253)" strokeWidth="1" opacity="0.4" className="animate-constellation-fade" />
+            <line x1="25%" y1="30%" x2="35%" y2="15%" stroke="rgb(147, 197, 253)" strokeWidth="1" opacity="0.3" className="animate-constellation-fade" style={{ animationDelay: '1s' }} />
+            <line x1="70%" y1="25%" x2="85%" y2="40%" stroke="rgb(147, 197, 253)" strokeWidth="1" opacity="0.4" className="animate-constellation-fade" style={{ animationDelay: '2s' }} />
+            <line x1="85%" y1="40%" x2="90%" y2="20%" stroke="rgb(147, 197, 253)" strokeWidth="1" opacity="0.3" className="animate-constellation-fade" style={{ animationDelay: '0.5s' }} />
+            <line x1="40%" y1="60%" x2="55%" y2="70%" stroke="rgb(147, 197, 253)" strokeWidth="1" opacity="0.4" className="animate-constellation-fade" style={{ animationDelay: '1.5s' }} />
+            <line x1="15%" y1="70%" x2="30%" y2="85%" stroke="rgb(147, 197, 253)" strokeWidth="1" opacity="0.3" className="animate-constellation-fade" style={{ animationDelay: '2.5s' }} />
+          </svg>
+        </div>
+      )}
+
+      {/* Shooting Stars (Night Mode) */}
+      {!isDayMode && (
+        <div className="fixed inset-0 pointer-events-none z-5">
+          <div className="shooting-star shooting-star-1"></div>
+          <div className="shooting-star shooting-star-2"></div>
+          <div className="shooting-star shooting-star-3"></div>
         </div>
       )}
 
@@ -184,27 +212,49 @@ export default function Dashboard() {
         </>
       )}
 
-      {/* Particles/Stars */}
+      {/* Enhanced Particles/Stars */}
       <div className="fixed inset-0 pointer-events-none z-10">
-        {particles.map((particle) => (
-          <div
-            key={particle.id}
-            className={`absolute rounded-full transition-all duration-1000 ${
-              isDayMode
-                ? "bg-white/60 animate-bounce"
-                : "bg-blue-200 animate-pulse"
-            }`}
-            style={{
-              left: `${particle.left}%`,
-              top: `${particle.top}%`,
-              width: `${particle.size}px`,
-              height: `${particle.size}px`,
-              opacity: isDayMode ? particle.opacity * 0.3 : particle.opacity,
-              animationDelay: `${particle.delay}s`,
-              animationDuration: `${particle.duration}s`,
-            }}
-          />
-        ))}
+        {particles.map((particle) => {
+          let animationClass = '';
+          let particleStyle = '';
+          
+          if (isDayMode) {
+            animationClass = 'animate-bounce';
+            particleStyle = 'bg-white/60';
+          } else {
+            switch (particle.animationType) {
+              case 'twinkle':
+                animationClass = 'animate-star-twinkle';
+                particleStyle = 'bg-blue-200';
+                break;
+              case 'float':
+                animationClass = 'animate-star-float';
+                particleStyle = 'bg-blue-100';
+                break;
+              case 'drift':
+                animationClass = 'animate-star-drift';
+                particleStyle = 'bg-blue-300';
+                break;
+            }
+          }
+
+          return (
+            <div
+              key={particle.id}
+              className={`absolute rounded-full transition-all duration-1000 ${particleStyle} ${animationClass}`}
+              style={{
+                left: `${particle.left}%`,
+                top: `${particle.top}%`,
+                width: `${particle.size}px`,
+                height: `${particle.size}px`,
+                opacity: isDayMode ? particle.opacity * 0.3 : particle.opacity,
+                animationDelay: `${particle.delay}s`,
+                animationDuration: `${particle.duration}s`,
+                boxShadow: !isDayMode ? `0 0 ${particle.size * 2}px rgba(147, 197, 253, 0.3)` : 'none',
+              }}
+            />
+          );
+        })}
       </div>
 
       {/* Main Content */}
@@ -366,6 +416,90 @@ export default function Dashboard() {
           }
         }
 
+        @keyframes star-twinkle {
+          0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+          25% {
+            opacity: 0.3;
+            transform: scale(0.8);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.2);
+          }
+          75% {
+            opacity: 0.6;
+            transform: scale(0.9);
+          }
+        }
+
+        @keyframes star-float {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+          }
+          25% {
+            transform: translateY(-15px) translateX(10px) rotate(90deg);
+          }
+          50% {
+            transform: translateY(-8px) translateX(-8px) rotate(180deg);
+          }
+          75% {
+            transform: translateY(-20px) translateX(5px) rotate(270deg);
+          }
+        }
+
+        @keyframes star-drift {
+          0% {
+            transform: translateX(0px) translateY(0px);
+            opacity: 1;
+          }
+          50% {
+            transform: translateX(30px) translateY(-20px);
+            opacity: 0.5;
+          }
+          100% {
+            transform: translateX(-20px) translateY(10px);
+            opacity: 1;
+          }
+        }
+
+        @keyframes moon-glow {
+          0%, 100% {
+            box-shadow: 0 0 20px rgba(147, 197, 253, 0.3);
+          }
+          50% {
+            box-shadow: 0 0 40px rgba(147, 197, 253, 0.5);
+          }
+        }
+
+        @keyframes constellation-fade {
+          0%, 100% {
+            opacity: 0.2;
+          }
+          50% {
+            opacity: 0.6;
+          }
+        }
+
+        @keyframes shooting-star {
+          0% {
+            transform: translateX(-100px) translateY(0px);
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          90% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateX(calc(100vw + 100px)) translateY(-200px);
+            opacity: 0;
+          }
+        }
+
         .animate-float {
           animation: float 8s ease-in-out infinite;
         }
@@ -381,6 +515,64 @@ export default function Dashboard() {
 
         .animate-wave-medium {
           animation: wave-medium 18s ease-in-out infinite;
+        }
+
+        .animate-star-twinkle {
+          animation: star-twinkle 3s ease-in-out infinite;
+        }
+
+        .animate-star-float {
+          animation: star-float 6s ease-in-out infinite;
+        }
+
+        .animate-star-drift {
+          animation: star-drift 8s ease-in-out infinite;
+        }
+
+        .animate-moon-glow {
+          animation: moon-glow 4s ease-in-out infinite;
+        }
+
+        .animate-constellation-fade {
+          animation: constellation-fade 4s ease-in-out infinite;
+        }
+
+        .shooting-star {
+          position: absolute;
+          width: 2px;
+          height: 2px;
+          background: linear-gradient(45deg, #ffffff, #93c5fd);
+          border-radius: 50%;
+          box-shadow: 0 0 10px #93c5fd;
+        }
+
+        .shooting-star::before {
+          content: '';
+          position: absolute;
+          top: 50%;
+          right: 0;
+          width: 50px;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, #93c5fd);
+          transform: translateY(-50%);
+        }
+
+        .shooting-star-1 {
+          top: 20%;
+          animation: shooting-star 3s linear infinite;
+          animation-delay: 2s;
+        }
+
+        .shooting-star-2 {
+          top: 40%;
+          animation: shooting-star 4s linear infinite;
+          animation-delay: 8s;
+        }
+
+        .shooting-star-3 {
+          top: 60%;
+          animation: shooting-star 5s linear infinite;
+          animation-delay: 15s;
         }
       `}</style>
     </div>
